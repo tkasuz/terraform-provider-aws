@@ -19,6 +19,39 @@ Terraform resource for managing an AWS CloudFront Continuous Deployment Policy.
 
 ## Example Usage
 
+### Single Weight Config
+```terraform
+resource "aws_cloudfront_continuous_deployment_policy" "test" {
+  enabled = true		
+  staging_distribution_dns_name = "d111111abcdef8.cloudfront.net"
+  traffic_config {
+	type = SingleWeight
+	single_weight_config = {
+		weight = 0.15
+		session_stickiness_config = {
+			idle_ttl = 300
+			maximum_ttl = 600
+		}
+	} 
+  }
+}
+```
+
+### Single Header Config
+```terraform
+resource "aws_cloudfront_continuous_deployment_policy" "test" {
+  enabled = true		
+  staging_distribution_dns_name = "d111111abcdef8.cloudfront.net"
+  traffic_config {
+	type = SingleWeight
+	single_header_config = {
+		header = "aws-cf-cd-test"
+		value = "test"
+	} 
+  }
+}
+```
+
 ### Basic Usage
 
 ```terraform
@@ -30,18 +63,32 @@ resource "aws_cloudfront_continuous_deployment_policy" "example" {
 
 The following arguments are required:
 
-* `example_arg` - (Required) Concise argument description. Do not begin the description with "An", "The", "Defines", "Indicates", or "Specifies," as these are verbose. In other words, "Indicates the amount of storage," can be rewritten as "Amount of storage," without losing any information.
+* `enabled` - (Required) A Boolean that indicates whether this continuous deployment policy is enabled (in effect). When this value is `true`, this policy is enabled and in effect. When this value is `false`, this policy is not enabled and has no effect.
 
-The following arguments are optional:
+* `staging_distribution_dns_names` - (Required) The CloudFront domain name of the staging distribution
+  * `qantity` - (Required) The number of CloudFront domain names in your staging distribution.
+  * `items` - (Optional) The CloudFront domain name of the staging distribution. For example: `d111111abcdef8.cloudfront.net`.
 
-* `optional_arg` - (Optional) Concise argument description. Do not begin the description with "An", "The", "Defines", "Indicates", or "Specifies," as these are verbose. In other words, "Indicates the amount of storage," can be rewritten as "Amount of storage," without losing any information.
+* `traffic_config` - (Optional) The traffic configuration of your continuous deployment.
+  * `type` - (Required) The type of traffic configuration.
+  * `single_header_config` - (Optional) Determines which HTTP requests are sent to the staging distribution.
+  * `single_weight_config` - (Optional) Contains the percentage of traffic to send to the staging distribution.
+
+### Single Header Config
+* `header` - (Required) The request header name that you want CloudFront to send to your staging distribution. The header must contain the prefix `aws-cf-cd-`.
+* `value` - (Required) The request header value.
+
+### Single Weight Config
+* `weight` - (Required) The percentage of traffic to send to a staging distribution, expressed as a decimal number between 0 and .15.
+* `session_stickiness_config` - (Optional) Session stickiness provides the ability to define multiple requests from a single viewer as a single session. 
+  * `idle_ttl` - (Required) The amount of time after which you want sessions to cease if no requests are received. Allowed values are 300–3600 seconds (5–60 minutes). The value must be less than or equal to `maximum_ttl`.
+  * `maximum_ttl` - (Required) The maximum amount of time to consider requests from the viewer as being part of the same session. Allowed values are 300–3600 seconds (5–60 minutes). The value must be less than or equal to `idle_ttl`.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `arn` - ARN of the Continuous Deployment Policy. Do not begin the description with "An", "The", "Defines", "Indicates", or "Specifies," as these are verbose. In other words, "Indicates the amount of storage," can be rewritten as "Amount of storage," without losing any information.
-* `example_attribute` - Concise description. Do not begin the description with "An", "The", "Defines", "Indicates", or "Specifies," as these are verbose. In other words, "Indicates the amount of storage," can be rewritten as "Amount of storage," without losing any information.
+* `id` - The identifier of the continuous deployment policy.
 
 ## Timeouts
 
@@ -53,7 +100,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-CloudFront Continuous Deployment Policy can be imported using the `example_id_arg`, e.g.,
+CloudFront Continuous Deployment Policy can be imported using the `id`, e.g.,
 
 ```
 $ terraform import aws_cloudfront_continuous_deployment_policy.example rft-8012925589
