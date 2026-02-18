@@ -122,9 +122,11 @@ Using `terraform import`, import Glue Integration Table Properties using the `re
 ```console
 % terraform import aws_glue_integration_table_properties.example "arn:aws:glue:us-east-1:123456789012:database/example,example_table"
 ```
+
   to = aws_glue_integration_table_properties.example
   id = "integration_table_properties-id-12345678"
 }
+
 ```
 
 Using `terraform import`, import Glue Integration Table Properties using the `example_id_arg`. For example:
